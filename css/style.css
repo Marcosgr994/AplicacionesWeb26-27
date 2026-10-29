@@ -1,0 +1,111 @@
+:root {
+    --color-cabecera: #2c3e50;
+    --color-texto-nav: #ffffff;
+    --color-fondo: #f4f6f8;
+
+    /*Reset*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--color-fondo);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /*Para que el pie se quede abajo*/
+}
+
+/*Cabecera*/
+header {
+    background-color: var(--color-cabecera);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /*Para que funcione en pantallas pequeñas*/
+}
+
+.logo {
+    color: var(--color-texto-nav);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.menu-principal {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.menu-principal a {
+    color: var(--color-texto-nav);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.menu-principal a:hover {
+    text-decoration: underline;
+}
+
+/*Contenido*/
+main {
+    flex: 1; /* Rellena el espacio entre cabecera y pie */
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+main h1 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/*Pie*/
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+/*Diseño Responsive*/
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    .menu-principal {
+        justify-content: center;
+        gap: 1rem;
+    }
+}
+
+/*Miga de pan*/
+.miga-pan {
+    background-color: #e9ecef;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.miga-pan a {
+    color: var(--color-cabecera);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.miga-pan a:hover {
+    text-decoration: underline;
+}
+
+.miga-pan span {
+    color: #6c757d;
+}
