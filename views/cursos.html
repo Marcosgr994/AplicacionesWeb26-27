@@ -6,7 +6,10 @@
         <title>
             Plataforma de Formación - Cursos
         </title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/datos.js" defer></script>
+        <script src="../js/comun.js" defer></script>
+        <script src="../js/cursos.js" defer></script>
     </head>
     <body>
         <!-- Cabecera y menu -->
@@ -72,8 +75,37 @@
                 Catálogo de Cursos
             </h1>
             <p>
-                Aquí se mostrará la oferta formativa disponible para matricularse. 
+                Busca, filtra y ordena la oferta formativa y matricúlate en el curso que te interese.
             </p>
+
+            <form id="form-filtros" class="filtros" role="search" aria-label="Filtros del catálogo">
+                <div class="campo">
+                    <label for="filtro-texto">Buscar</label>
+                    <input type="search" id="filtro-texto" placeholder="Nombre o descripción del curso">
+                </div>
+                <div class="campo">
+                    <label for="filtro-docente">Docente</label>
+                    <select id="filtro-docente">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="filtro-orden">Ordenar por</label>
+                    <select id="filtro-orden">
+                        <option value="nombre">Nombre</option>
+                        <option value="fecha">Fecha de inicio</option>
+                        <option value="plazas">Plazas libres</option>
+                    </select>
+                </div>
+                <div class="campo campo-check">
+                    <input type="checkbox" id="filtro-plazas">
+                    <label for="filtro-plazas">Solo con plazas libres</label>
+                </div>
+                <button type="reset" class="boton boton-secundario">Limpiar filtros</button>
+            </form>
+
+            <p id="contador-cursos" class="contador" aria-live="polite"></p>
+            <div id="listado-cursos" class="rejilla-cursos"></div>
         </main>
 
         <!-- Pie -->

@@ -6,7 +6,10 @@
         <title>
             Plataforma de Formación - Mis matrículas
         </title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/datos.js" defer></script>
+        <script src="../js/comun.js" defer></script>
+        <script src="../js/matriculas.js" defer></script>
     </head>
     <body>
         <!-- Cabecera y menu -->
@@ -69,11 +72,21 @@
              </nav>
 
             <h1>
-                Todas Tus Matrículas
+                Mis matrículas
             </h1>
             <p>
-                Aquí se mostrará tú historial de cursos y podrás gestionar tus matrículas activas.
+                Consulta tus cursos activos, cancela una matrícula o revisa tu histórico.
             </p>
+
+            <div class="vistas">
+                <button type="button" class="boton boton-secundario" data-vista="activas" aria-pressed="true">
+                    Activas (<span id="cuenta-activas">0</span>)
+                </button>
+                <button type="button" class="boton boton-secundario" data-vista="historico" aria-pressed="false">
+                    Histórico (<span id="cuenta-historico">0</span>)
+                </button>
+            </div>
+            <div id="zona-tabla" aria-live="polite"></div>
         </main>
 
         <!-- Pie -->
