@@ -27,7 +27,7 @@ function crearFila(matricula) {
         : el("span", { textContent: matricula.fechaCancelacion ? "Cancelada el " + formatearFecha(matricula.fechaCancelacion) : "—" });
 
     return [
-        el("a", { href: "cursos.html", textContent: curso.nombre }),
+        el("a", { href: "/cursos", textContent: curso.nombre }),
         nombreDocente(curso.idDocente),
         nombreAula(curso.idAula),
         formatearFecha(curso.fechaInicio) + " – " + formatearFecha(curso.fechaFin),
@@ -51,7 +51,7 @@ function pintar() {
             ? "No tienes matrículas activas. Consulta el catálogo para matricularte."
             : "Todavía no has cancelado ninguna matrícula.";
         zonaTabla.replaceChildren(
-            el("p", { className: "vacio" }, mensaje + " ", vista === "activas" ? el("a", { href: "cursos.html", textContent: "Ver cursos" }) : null)
+            el("p", { className: "vacio" }, mensaje + " ", vista === "activas" ? el("a", { href: "/cursos", textContent: "Ver cursos" }) : null)
         );
         return;
     }

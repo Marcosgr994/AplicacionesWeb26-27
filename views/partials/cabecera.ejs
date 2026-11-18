@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Formación - <%= titulo %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/datos.js" defer></script>
+    <script src="/js/comun.js" defer></script>
+    <% (locals.scripts || []).forEach(function (archivo) { %>
+    <script src="/js/<%= archivo %>" defer></script>
+    <% }); %>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            Gestión Formativa
+        </div>
+        <nav>
+            <ul class="menu-principal">
+                <% [
+                    ["inicio", "/", "Inicio"],
+                    ["cursos", "/cursos", "Cursos"],
+                    ["docentes", "/docentes", "Docentes"],
+                    ["aulas", "/aulas", "Aulas"],
+                    ["matriculas", "/matriculas", "Mis matrículas"],
+                    ["perfil", "/perfil", "Perfil"],
+                    ["accesibilidad", "/accesibilidad", "Accesibilidad"]
+                ].forEach(function (enlace) { %>
+                <li>
+                    <a href="<%= enlace[1] %>"<%- pagina === enlace[0] ? ' aria-current="page"' : '' %>><%= enlace[2] %></a>
+                </li>
+                <% }); %>
+            </ul>
+        </nav>
+    </header>

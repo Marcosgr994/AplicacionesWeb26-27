@@ -189,14 +189,3 @@ function crearTabla(titulo, columnas, filas) {
         )
     );
 }
-
-function marcarEnlaceActivo() {
-    const actual = location.pathname.split("/").pop() || "index.html";
-    document.querySelectorAll(".menu-principal a").forEach(enlace => {
-        if (enlace.getAttribute("href") === actual) {
-            enlace.setAttribute("aria-current", "page");
-        }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", marcarEnlaceActivo);

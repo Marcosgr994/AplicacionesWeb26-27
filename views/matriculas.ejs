@@ -1,0 +1,33 @@
+<%- include('partials/cabecera') %>
+
+<main>
+    <!-- Miga de pan -->
+     <nav class="miga-pan">
+        <a href="/">
+            Inicio
+        </a>
+        &gt;
+        <span>
+            Matrículas
+        </span>
+     </nav>
+
+    <h1>
+        Mis matrículas
+    </h1>
+    <p>
+        Consulta tus cursos activos, cancela una matrícula o revisa tu histórico.
+    </p>
+
+    <div class="vistas">
+        <button type="button" class="boton boton-secundario" data-vista="activas" aria-pressed="true">
+            Activas (<span id="cuenta-activas">0</span>)
+        </button>
+        <button type="button" class="boton boton-secundario" data-vista="historico" aria-pressed="false">
+            Histórico (<span id="cuenta-historico">0</span>)
+        </button>
+    </div>
+    <div id="zona-tabla" aria-live="polite"></div>
+</main>
+
+<%- include('partials/pie') %>
