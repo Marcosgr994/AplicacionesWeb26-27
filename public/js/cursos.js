@@ -1,107 +1,112 @@
 const filtros = { texto: "", idDocente: "", soloConPlazas: false, orden: "nombre" };
+let cursos = [];
 
 const ORDENACIONES = {
     nombre: (a, b) => a.nombre.localeCompare(b.nombre, "es"),
-    fecha: (a, b) => a.fechaInicio.localeCompare(b.fechaInicio),
-    plazas: (a, b) => plazasLibres(b) - plazasLibres(a)
+    fecha: (a, b) => a.fecha_inicio.localeCompare(b.fecha_inicio),
+    plazas: (a, b) => b.plazas_libres - a.plazas_libres
 };
 
 const listado = document.getElementById("listado-cursos");
 const contador = document.getElementById("contador-cursos");
 const formulario = document.getElementById("form-filtros");
+const selectorDocente = document.getElementById("filtro-docente");
+
+async function pedirCursos() {
+    const respuesta = await fetch("/api/cursos", { headers: { Accept: "application/json" } });
+    if (!respuesta.ok) {
+        throw new Error("El servidor respondió con el estado " + respuesta.status);
+    }
+    return respuesta.json();
+}
 
 function cursosVisibles() {
     const texto = normalizar(filtros.texto.trim());
-    return CURSOS
+    return cursos
         .filter(curso => curso.estado === "activo")
-        .filter(curso => !texto || normalizar(curso.nombre + " " + curso.descripcion).includes(texto))
-        .filter(curso => !filtros.idDocente || curso.idDocente === Number(filtros.idDocente))
-        .filter(curso => !filtros.soloConPlazas || plazasLibres(curso) > 0)
+        .filter(curso => !texto || normalizar(curso.nombre + " " + (curso.descripcion || "")).includes(texto))
+        .filter(curso => !filtros.idDocente || curso.id_docente === Number(filtros.idDocente))
+        .filter(curso => !filtros.soloConPlazas || curso.plazas_libres > 0)
         .sort(ORDENACIONES[filtros.orden]);
 }
 
-function crearBotonMatricula(curso) {
-    if (matriculaActivaDelUsuario(curso.id)) {
-        return el("button", { type: "button", className: "boton boton-secundario", disabled: true, textContent: "Ya estás matriculado" });
-    }
-    if (plazasLibres(curso) <= 0) {
-        return el("button", { type: "button", className: "boton boton-secundario", disabled: true, textContent: "Curso completo" });
-    }
-    return el("button", {
-        type: "button",
-        className: "boton boton-primario",
-        "data-accion": "matricular",
-        "data-id": String(curso.id),
-        textContent: "Matricularme"
-    });
-}
-
 function crearTarjeta(curso) {
-    const libres = plazasLibres(curso);
-    const ocupadas = curso.plazas - libres;
+    const libres = curso.plazas_libres;
     const claseInsignia = libres === 0 ? "insignia-error" : libres <= 3 ? "insignia-aviso" : "insignia-ok";
     const textoPlazas = libres === 0 ? "Completo" : libres + (libres === 1 ? " plaza libre" : " plazas libres");
 
-    return el("article", { className: "tarjeta", "aria-labelledby": "curso-" + curso.id },
+    return el("article", { className: "tarjeta", "aria-labelledby": "curso-" + curso.id_curso },
         el("div", { className: "tarjeta-cuerpo" },
-            el("h2", { id: "curso-" + curso.id, textContent: curso.nombre }),
-            el("p", { className: "tarjeta-descripcion", textContent: curso.descripcion }),
+            el("h2", { id: "curso-" + curso.id_curso, textContent: curso.nombre }),
+            el("p", { className: "tarjeta-descripcion", textContent: curso.descripcion || "Sin descripción" }),
             el("dl", { className: "datos" },
-                el("dt", { textContent: "Docente" }), el("dd", { textContent: nombreDocente(curso.idDocente) }),
-                el("dt", { textContent: "Aula" }), el("dd", { textContent: nombreAula(curso.idAula) }),
-                el("dt", { textContent: "Fechas" }), el("dd", { textContent: formatearFecha(curso.fechaInicio) + " – " + formatearFecha(curso.fechaFin) }),
-                el("dt", { textContent: "Horario" }), el("dd", { textContent: curso.horario })
+                el("dt", { textContent: "Docente" }), el("dd", { textContent: curso.docente }),
+                el("dt", { textContent: "Aula" }), el("dd", { textContent: curso.aula }),
+                el("dt", { textContent: "Fechas" }), el("dd", { textContent: formatearFecha(curso.fecha_inicio) + " – " + formatearFecha(curso.fecha_fin) }),
+                el("dt", { textContent: "Horario" }), el("dd", { textContent: curso.horario || "Por determinar" })
             ),
             el("p", {}, el("span", { className: "insignia " + claseInsignia, textContent: textoPlazas })),
             el("progress", {
                 max: curso.plazas,
-                value: ocupadas,
+                value: curso.matriculados,
                 "aria-label": "Plazas ocupadas de " + curso.plazas
             })
-        ),
-        el("div", { className: "tarjeta-pie" }, crearBotonMatricula(curso))
+        )
     );
 }
 
 function pintar() {
-    const cursos = cursosVisibles();
-    if (cursos.length === 0) {
+    const visibles = cursosVisibles();
+    if (visibles.length === 0) {
         listado.replaceChildren(el("p", { className: "vacio", textContent: "No hay cursos que coincidan con los filtros seleccionados." }));
     } else {
-        listado.replaceChildren(...cursos.map(crearTarjeta));
+        listado.replaceChildren(...visibles.map(crearTarjeta));
     }
-    contador.textContent = cursos.length === 1 ? "1 curso encontrado" : cursos.length + " cursos encontrados";
+    contador.textContent = visibles.length === 1 ? "1 curso encontrado" : visibles.length + " cursos encontrados";
 }
 
-async function alPulsarMatricular(idCurso) {
-    const curso = CURSOS.find(c => c.id === idCurso);
-    const aceptado = await confirmar(
-        "Confirmar matrícula",
-        "¿Quieres matricularte en «" + curso.nombre + "»?",
-        "Matricularme"
+function rellenarDocentes() {
+    const docentes = new Map();
+    cursos.forEach(curso => docentes.set(curso.id_docente, curso.docente));
+    const ordenados = [...docentes].sort((a, b) => a[1].localeCompare(b[1], "es"));
+    selectorDocente.replaceChildren(
+        el("option", { value: "", textContent: "Todos" }),
+        ...ordenados.map(([id, nombre]) => el("option", { value: String(id), textContent: nombre }))
     );
-    if (!aceptado) return;
-    const resultado = matricular(idCurso);
-    mostrarAviso(resultado.ok ? "exito" : "error", resultado.mensaje);
-    pintar();
 }
 
-function cargarDocentesEnFiltro() {
-    const selector = document.getElementById("filtro-docente");
-    DOCENTES.forEach(docente => {
-        selector.append(el("option", { value: String(docente.id), textContent: docente.nombre + " " + docente.apellidos }));
-    });
+function pintarError() {
+    contador.textContent = "";
+    listado.replaceChildren(
+        el("div", { className: "vacio", role: "alert" },
+            el("p", { textContent: "No se han podido cargar los cursos. Comprueba que el servidor y MariaDB están en marcha." }),
+            el("p", {}, el("button", { type: "button", className: "boton boton-primario", "data-accion": "reintentar", textContent: "Reintentar" }))
+        )
+    );
+}
+
+async function cargarCursos() {
+    listado.setAttribute("aria-busy", "true");
+    listado.replaceChildren(el("p", { className: "vacio", textContent: "Cargando cursos…" }));
+    try {
+        cursos = await pedirCursos();
+        rellenarDocentes();
+        pintar();
+    } catch (error) {
+        console.error("Error al cargar los cursos:", error);
+        pintarError();
+    } finally {
+        listado.setAttribute("aria-busy", "false");
+    }
 }
 
 function iniciar() {
-    cargarDocentesEnFiltro();
-
     formulario.addEventListener("submit", evento => evento.preventDefault());
     document.getElementById("filtro-texto").addEventListener("input", evento => {
         filtros.texto = evento.target.value;
         pintar();
     });
-    document.getElementById("filtro-docente").addEventListener("change", evento => {
+    selectorDocente.addEventListener("change", evento => {
         filtros.idDocente = evento.target.value;
         pintar();
     });
@@ -118,14 +123,13 @@ function iniciar() {
         filtros.idDocente = "";
         filtros.soloConPlazas = false;
         filtros.orden = "nombre";
-        setTimeout(pintar, 0);
+        setTimeout(() => { if (cursos.length) pintar(); }, 0);
     });
     listado.addEventListener("click", evento => {
-        const boton = evento.target.closest("button[data-accion='matricular']");
-        if (boton) alPulsarMatricular(Number(boton.dataset.id));
+        if (evento.target.closest("button[data-accion='reintentar']")) cargarCursos();
     });
 
-    pintar();
+    cargarCursos();
 }
 
 document.addEventListener("DOMContentLoaded", iniciar);
