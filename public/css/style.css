@@ -239,6 +239,14 @@ main > p {
     border: 1px solid var(--color-borde);
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.tarjeta-imagen {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
 }
 
 .tarjeta-cuerpo {

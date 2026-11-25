@@ -30,12 +30,26 @@ function cursosVisibles() {
         .sort(ORDENACIONES[filtros.orden]);
 }
 
+function rutaImagen(ruta) {
+    if (!ruta) return null;
+    return ruta.startsWith("/") ? ruta : "/" + ruta;
+}
+
+function crearImagen(curso) {
+    const ruta = rutaImagen(curso.imagen);
+    if (!ruta) return null;
+    const imagen = el("img", { className: "tarjeta-imagen", src: ruta, alt: "", loading: "lazy" });
+    imagen.addEventListener("error", () => imagen.remove());
+    return imagen;
+}
+
 function crearTarjeta(curso) {
     const libres = curso.plazas_libres;
     const claseInsignia = libres === 0 ? "insignia-error" : libres <= 3 ? "insignia-aviso" : "insignia-ok";
     const textoPlazas = libres === 0 ? "Completo" : libres + (libres === 1 ? " plaza libre" : " plazas libres");
 
     return el("article", { className: "tarjeta", "aria-labelledby": "curso-" + curso.id_curso },
+        crearImagen(curso),
         el("div", { className: "tarjeta-cuerpo" },
             el("h2", { id: "curso-" + curso.id_curso, textContent: curso.nombre }),
             el("p", { className: "tarjeta-descripcion", textContent: curso.descripcion || "Sin descripción" }),
